@@ -1,0 +1,91 @@
+{% extends "import.html" %} 
+{% block content %}
+<div class="center-content">
+  <div class="container">
+    <h2>Upload Brain Scan Images:</h2>
+    <br />
+
+    <!-- Combine file inputs into a single form -->
+    <form id="upload-files" method="post" enctype="multipart/form-data">
+        <input
+          type="file"
+          name="ct_file"  
+          class="btn btn-success"
+          id="imageUpload1"
+          accept=".png, .jpg, .jpeg"
+          required
+        /><br /><br />
+        <input
+          type="file"
+          name="mri_file" 
+          class="btn btn-success"
+          id="imageUpload2"
+          accept=".png, .jpg, .jpeg"
+          required
+        /><br /><br />
+      </form>
+      
+
+    <div class="image-section">
+      <img
+        id="imagePreview"
+        class="img-responsive"
+        src="#"
+        style="width: 300px; height: 300px"
+      /><br /><br />
+      <div>
+        <button type="button" class="btn btn-info btn-lg" id="btn-predict">
+          Predict!
+        </button>
+      </div>
+    </div>
+
+    <!-- Loader animation while predicting -->
+    <div class="loader" id="loader"></div>
+
+    <h3 id="result">
+      <span> </span>
+    </h3>
+  </div>
+</div>
+
+<script>
+  // Image Preview Script
+  $("#imageUpload1, #imageUpload2").change(function (e) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      $("#imagePreview").attr("src", e.target.result);
+      $(".image-section").show(); // Show the prediction button after both files are uploaded
+    };
+    reader.readAsDataURL(this.files[0]);
+  });
+
+  // Predict button functionality
+  $("#btn-predict").click(function () {
+    var formData = new FormData($("#upload-files")[0]); // Use the combined form
+
+    // Show loader while predicting
+    $("#loader").show();
+
+    $.ajax({
+      url: "/predict", // Make sure your Flask route is set up to handle this
+      type: "POST",
+      data: formData,
+      contentType: false,
+      processData: false,
+      success: function (result) {
+        // Hide loader
+        $("#loader").hide();
+
+        // Display result
+        $("#result span").text(result);
+      },
+      error: function () {
+        $("#loader").hide();
+        $("#result span").text("Error in prediction.");
+      },
+    });
+  });
+</script>
+
+{% endblock %}

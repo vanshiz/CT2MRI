@@ -1,0 +1,68 @@
+{% extends "import.html" %}
+
+{% block content %}
+<div class="center-content">
+    <div class="container">
+        <h2>Upload Brain Scan Image:</h2><br>
+
+        <form id="upload-file" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" class="btn btn-success" id="imageUpload" accept=".png, .jpg, .jpeg"><br><br>
+        </form>
+
+        <!-- Image preview section -->
+        <div class="image-section">
+            <img id="imagePreview" class="img-responsive" src="#" style="width:300px;height:300px;" /><br><br>
+            <div>
+                <button type="button" class="btn btn-info btn-lg" id="btn-predict">Predict!</button>
+            </div>
+        </div>
+
+        <!-- Loader animation while predicting -->
+        <div class="loader" id="loader"></div>
+
+        <h3 id="result">
+            <span> </span>
+        </h3>
+    </div>
+</div>
+
+<script>
+    // Image Preview Script
+    $("#imageUpload").change(function(e) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            $("#imagePreview").attr('src', e.target.result);
+            $(".image-section").show(); // Show the prediction button after file is uploaded
+        };
+        reader.readAsDataURL(this.files[0]);
+    });
+
+    // Predict button functionality
+    $("#btn-predict").click(function() {
+        var formData = new FormData($("#upload-file")[0]);
+
+        // Show loader while predicting
+        $("#loader").show();
+
+        $.ajax({
+            url: '/predict',  // Make sure your Flask route is set up to handle this
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(result) {
+                // Hide loader
+                $("#loader").hide();
+
+                // Display result
+                $("#result span").text(result);
+            },
+            error: function() {
+                $("#loader").hide();
+                $("#result span").text("Error in prediction.");
+            }
+        });
+    });
+</script>
+
+{% endblock %}
