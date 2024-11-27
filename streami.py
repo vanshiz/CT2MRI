@@ -35,9 +35,9 @@ cyclegan_model = load_model('cycleGAN.h5', custom_objects={'InstanceNormalizatio
 # Class mapping function
 def get_className(classNo):
     if classNo == 0:
-        return "No Brain Tumor"
+        return "The prediction says the patient does not have brain tumor"
     elif classNo == 1:
-        return "Yes Brain Tumor"
+        return "The prediction says the patient has brain tumor"
 
 # Preprocessing function for images
 def preprocess_image(image_file, target_size=(64, 64)):
@@ -272,6 +272,21 @@ elif option == "Analysis":
 
                 result = getResult(st.session_state["ct_file"], st.session_state["mri_file"])
                 class_name = get_className(result)
-                st.success(f"Prediction: {class_name}")
+                 # Display result with color coding
+                if class_name == "The prediction says the patient has brain tumor":
+                    st.error(f"{class_name}")
+                else:
+                    st.success(f"{class_name}")
+                st.markdown(
+                    """
+                    <br>
+                    <div style="font-size: 1.2em; color: white; margin-top: 20px; background-color: rgba(255, 165, 0, 0.3); padding: 10px;">
+                        <strong>Disclaimer:</strong><br>
+                        DiagnoAid is an AI-powered tool designed to assist in medical imaging analysis. 
+                        We encourage you to consult with a licensed medical professional for an accurate diagnosis and treatment plan.
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
     else:
         st.warning("Please upload both the CT and MRI scans (or generate the MRI from CT scan).")
